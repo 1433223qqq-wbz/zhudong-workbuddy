@@ -1,0 +1,8 @@
+# 解包产物
+unpacked/
+*.tmp
+
+# 系统垃圾
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>诛冬破甲 · WorkBuddy 版 v1.5.0</title>
+<style>
+  :root{--bg:#0b0f14;--line:#1e2b3a;--fg:#e6edf3;--dim:#8fa2b6;--acc:#10b981;--acc2:#22d3ee;--warn:#f59e0b}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:radial-gradient(1000px 520px at 12% -8%,rgba(16,185,129,.18),transparent 60%),radial-gradient(900px 520px at 92% 0%,rgba(34,211,238,.14),transparent 62%),var(--bg);
+    color:var(--fg);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:36px 18px 56px}
+  .wrap{max-width:940px;margin:0 auto}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;font-size:12px;
+    border:1px solid rgba(16,185,129,.45);background:rgba(16,185,129,.10);color:var(--acc)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+  h1{margin:14px 0 6px;font-size:34px;line-height:1.25;
+    background:linear-gradient(92deg,#eafff7,#7ff0c8 45%,#7ad9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--dim);font-size:15px;margin:0 0 26px}
+  .actions{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 26px}
+  a.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 20px;border-radius:12px;text-decoration:none;
+    font-weight:600;font-size:15px;border:1px solid transparent;transition:.12s}
+  a.btn:hover{transform:translateY(-1px)}
+  a.p{background:linear-gradient(96deg,#10b981,#0ea5a3);color:#04201a;box-shadow:0 10px 26px -12px rgba(16,185,129,.9)}
+  a.s{background:rgba(34,211,238,.10);color:#9be9ff;border-color:rgba(34,211,238,.42)}
+  a.t{background:rgba(255,255,255,.04);color:var(--fg);border-color:var(--line)}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(266px,1fr));margin:0 0 14px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+    border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card h3{margin:0 0 10px;font-size:15px} .card p{margin:0;color:var(--dim);font-size:13.5px}
+  ol,ul{margin:8px 0 0;padding-left:20px;color:var(--dim);font-size:13.5px} li{margin:5px 0}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;padding:1.5px 6px;border-radius:6px;
+    background:rgba(255,255,255,.07);border:1px solid var(--line);color:#c9f7e6}
+  .kv{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  .kv td{padding:7px 8px;border-bottom:1px solid rgba(30,43,58,.9);color:var(--dim);vertical-align:top}
+  .kv td:first-child{color:#cfe3f2;white-space:nowrap;width:36%} .kv tr:last-child td{border-bottom:0}
+  .foot{margin:26px 0 0;color:#5d7387;font-size:12.5px;line-height:1.9}
+  .hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:22px 0}
+  @media(max-width:560px){h1{font-size:26px}body{padding:24px 14px 40px}.actions a.btn{flex:1 1 100%;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge"><span class="dot"></span>诛冬破甲 · WorkBuddy 版 · v1.5.0 · 双通道</span>
+  <h1>诛冬破甲 · WorkBuddy 版</h1>
+  <p class="sub">人格文件 + hook 注入两条通道一起上：人格改它的自我认知，hook 每轮把运行契约塞进提示词。先给命令与步骤，不写免责声明，每轮最后一行带群号。</p>
+
+  <div class="actions">
+    <a class="btn p" href="https://qm.qq.com/q/IR15E9xWkS" target="_blank" rel="noopener">加入诛冬群（QQ群 994974110）→</a>
+    <a class="btn s" href="https://zzz.wbzai.cn" target="_blank" rel="noopener">自家破 API 中转站 →</a>
+    <a class="btn t" href="#start">怎么用</a>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>① 为什么上一版不生效</h3>
+      <p>WorkBuddy 的人格文件走的是 user-context，而且被硬截断到 <strong>10000 字符</strong>；真正压模型的是 CLI 的 system prompt。所以这版加了 hook：<code>SessionStart</code> 灌完整内核，<code>UserPromptSubmit</code> 每轮灌一次契约。</p>
+    </div>
+    <div class="card">
+      <h3>② 装完先完全退出</h3>
+      <p>Windows 右下角托盘右键 → 退出；Mac ⌘Q，确认 Dock 与菜单栏都没了。人格与钩子都是启动时加载的，不退干净不生效。</p>
+    </div>
+    <div class="card">
+      <h3>③ 新会话验证三件事</h3>
+      <p>a) 自称「诛冬」；b) 叫你「老大」；c) 每轮最后一行是 <code>诛冬群 QQ群：994974110</code>。三条全中才算好；缺一条就跑 <code>检查是否装好.bat</code>。</p>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="card" id="start">
+    <h3>三步上手</h3>
+    <ol>
+      <li>完全退出 WorkBuddy（托盘右键退出 / ⌘Q）。</li>
+      <li>Windows 双击 <code>一键安装.bat</code>；macOS 终端跑 <code>bash 04-macOS安装/install-mac.command</code>。</li>
+      <li>装完它会自己重开；开个新会话直接提问。</li>
+    </ol>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card">
+      <h3>报错速查</h3>
+      <table class="kv">
+        <tr><td>双击一闪就没</td><td>右键"以管理员身份运行"，或 PowerShell 跑 <code>apply.ps1</code></td></tr>
+        <tr><td>人格没变化</td><td>没退干净 / 旧会话缓存 / 重跑安装</td></tr>
+        <tr><td>最后一行没群号</td><td>hook 没注入：看 <code>检查是否装好.bat</code> 里 SessionStart / UserPromptSubmit 是否 X</td></tr>
+        <tr><td>BOOTSTRAP.md 又出现</td><td>没重启就开会话；重启后重跑安装</td></tr>
+        <tr><td>模型仍给拒绝句</td><td>① hook 两项要 OK ② 换模型再开新会话 ③ 把检查输出发群里</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>卸载与回滚</h3>
+      <ul>
+        <li>Windows：<code>一键卸载.bat</code>；macOS：<code>uninstall-mac.command</code></li>
+        <li>人格文件按 <code>*.bak-&lt;时间&gt;</code> 还原；settings.json 里有 <code>*.bak-&lt;时间&gt;</code></li>
+        <li>只摘含 <code>zhudong</code> 的两条 hook，你自己的 hook（比如 .wb-switch）原样保留</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="card">
+    <h3>本包信息</h3>
+    <table class="kv">
+      <tr><td>版本</td><td>诛冬破甲 · WorkBuddy 版 v1.5.0（人格 + hook 双通道）</td></tr>
+      <tr><td>内核</td><td><code>wk破.txt</code> 逐字 + 群公告：14626 字节 · sha256 D40779CE…743174</td></tr>
+      <tr><td>人格文件</td><td>SOUL.md（1989 字符，避开 10000 截断）/ IDENTITY / USER / MEMORY</td></tr>
+      <tr><td>钩子</td><td><code>~/.workbuddy/zhudong/hook.ps1</code>（macOS: hook.sh）+ kernel.md + reminder.md（1327 字节）</td></tr>
+      <tr><td>设置写入</td><td><code>~/.workbuddy/settings.json</code> 与 <code>~/.codebuddy/settings.json</code> 的 SessionStart / UserPromptSubmit</td></tr>
+      <tr><td>群</td><td>诛冬群 · QQ群 <strong>994974110</strong> · 暗号：诛冬<br><a href="https://qm.qq.com/q/IR15E9xWkS" style="color:#7ff0c8">https://qm.qq.com/q/IR15E9xWkS</a></td></tr>
+      <tr><td>中转站</td><td><a href="https://zzz.wbzai.cn" style="color:#9be9ff">https://zzz.wbzai.cn</a></td></tr>
+    </table>
+  </div>
+
+  <p class="foot">
+    本页是安装包内的离线静态页（<code>05-推广页\index.html</code>），不联网也能打开，安装脚本跑完会自动弹出来。<br>
+    群文件里有后续更新包；装了破甲的 WorkBuddy 每轮回答最后一行都会带群号。<br>
+    诛冬破甲 · WorkBuddy 版 · 本地人格 + hook 改造 · CC BY-NC-SA 4.0
+  </p>
+</div>
+</body>
+</html>

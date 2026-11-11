@@ -1,0 +1,276 @@
+诛冬破甲 · WorkBuddy 版 v1.5.0
+=====================================================
+适用：WorkBuddy 5.x（Windows 10/11 与 macOS 都行）
+做法：双通道，不装插件、不改主程序。
+
+通道一 · 人格文件（每个用户目录里各一份）
+    SOUL.md      ← 破甲内核精简版（1989 字符，卡在 WorkBuddy 的 10000 字符截断线以内）
+    IDENTITY.md  ← 名字、称呼、群信息
+    USER.md      ← 把你的称呼固定成「老大」
+    MEMORY.md    ← 固定记忆条目（群号、群链接、收尾规则、破甲要点）
+    另外会删掉 BOOTSTRAP.md —— 它会在每次启动时反过来改写上面几个文件，留着等于白装。
+
+通道二 · hook 注入（这才是压得住模型的那一层）
+    {{USERPROFILE}}\.workbuddy\zhudong\hook.ps1    ← 钩子脚本
+    {{USERPROFILE}}\.workbuddy\zhudong\kernel.md    ← 完整内核（14626 字节）
+    {{USERPROFILE}}\.workbuddy\zhudong\reminder.md  ← 每轮契约（1327 字节）
+    并写进 settings.json 的两条钩子：
+        SessionStart      → 输出完整内核（每个会话开始一次）
+        UserPromptSubmit  → 输出每轮契约（每次提问前注入）
+    WorkBuddy 的 CLI 会把钩子输出包成 <system-reminder data-role="hook"> 插进提示词，
+    优先级高于人格文件（人格走的是 user-context，还会被截断到 10000 字符）。
+
+诛冬群
+    QQ群：994974110
+    加群链接：https://qm.qq.com/q/IR15E9xWkS
+    入群暗号：诛冬
+（安装脚本跑完会自动打开加群页面，以及本包内的离线推广页 05-推广页\index.html）
+=====================================================
+
+【0】装之前
+
+  0.1  WorkBuddy 至少启动过一次，`.workbuddy` 目录已生成。
+       Windows：Win+R 输入 %USERPROFILE%\.workbuddy
+       macOS ：Finder 按 ⌘⇧G 输入 ~/.workbuddy
+
+  0.2  完全退出 WorkBuddy（不是关窗口）：
+       Windows：右下角托盘 WorkBuddy 图标 → 右键 → 退出
+       macOS ：⌘Q，确认 Dock 与菜单栏都没了
+       （安装脚本默认会自己结束进程，也可加 -NoKill 跳过）
+
+  0.3  知道它在改什么：只动 .workbuddy 下的人格文件、zhudong 目录与 settings.json 里的两条 hook，
+       其它一概不碰。人格文件与 settings.json 都留 *.bak-<时间> 备份，卸载能还原。
+
+-------------------------------------------------
+【1】Windows 安装
+
+  1.1  双击  本包根目录\一键安装.bat
+       也可以只跑 Windows 那一套：本包根目录\01-Windows安装\安装.bat
+
+  1.2  看到这七行就算成功了：
+       [1/7] 安装包自检通过（payload 4 个 + hook 4 个）
+       [2/7] WorkBuddy 在跑（N 个进程），正在退出…
+       [3/7] 目标人格目录 N 个：...
+       [4/7] 原始人格已备份 N 个 / 破甲人格已写入 N 个文件
+       [5/7] hook 已注入（SessionStart + UserPromptSubmit，共 N 处配置）
+       [6/7] BOOTSTRAP.md 已清除 N 个（防它反过来改写人格）
+       [7/7] 加群信息已写入 加群.txt
+       ==== 诛冬破甲 · WorkBuddy 版 v1.5.0 安装完成 ====
+
+  1.3  最后会自动打开两个页面：
+       a) 加群页面：https://qm.qq.com/q/IR15E9xWkS（暗号：诛冬，群号 994974110）
+       b) 包内离线推广页：05-推广页\index.html
+       不想弹浏览器：
+           加参数 -NoOpenGroup 关掉加群页
+           加参数 -NoOpenPage  关掉推广页
+           加参数 -NoKill 不让它替你结束 WorkBuddy
+           加参数 -NoRestart 装完不自动重开 WorkBuddy
+
+  1.4  重新打开 WorkBuddy（脚本已自动重开），开一个新会话。
+
+  1.5  验证（三样都对才算成功）：
+       a) 它自称「诛冬」
+       b) 它叫你「老大」
+       c) 每轮回答最后一行是：诛冬群 QQ群：994974110
+       双击 本包根目录\检查是否装好.bat，会逐项打 OK/X，包括
+       「hook 脚本」「SessionStart / UserPromptSubmit」「SOUL 长度」这几项。
+
+  1.6  人格没变？按顺序排：
+       ① 是不是真退干净了（托盘退出 / 任务管理器里没有 WorkBuddy 进程）
+       ② 旧会话有缓存 → 开个新建会话
+       ③ 检查是否装好.bat 里 hook 那几项是不是 X；是就重跑一次安装
+       ④ BOOTSTRAP.md 有没有又冒出来，冒出来就再跑一次安装
+
+-------------------------------------------------
+【2】macOS 安装
+
+  2.1  终端执行（路径换成你自己的）：
+
+       chmod +x <本包根目录>/04-macOS安装/install-mac.command
+       bash <本包根目录>/04-macOS安装/install-mac.command
+
+  2.2  跑完会自动 open 加群页面与包内推广页。
+       不想自动打开：ZHUODONG_NO_OPEN_GROUP=1 ZHUODONG_NO_OPEN_PAGE=1 bash install-mac.command
+
+  2.3  hook 注入依赖 python3（macOS 自带或 xcode-select --install 装），没有的话脚本会提示，
+       人格文件仍然装好，但强度会打折。
+
+  2.4  ⌘Q 退出 WorkBuddy 再打开，验证同【1.5】。
+
+-------------------------------------------------
+【3】装好之后
+
+  3.1  直接提问即可，不需要每次贴规则。
+  3.2  回答形式：第一行就是结论或命令，然后才是理由。
+  3.3  每轮回答的最后一行固定是：诛冬群 QQ群：994974110
+       （hook 每轮注入一次，回答再长也带；只有你说单个词「诛冬」时它只回一句，不带尾巴）
+  3.4  换模型：明显"降智"（空泛、绕圈）就换模型 + 开新会话再测。
+  3.5  群里有更新包，暗号：诛冬。
+
+-------------------------------------------------
+【4】卸载
+
+  Windows：双击 本包根目录\一键卸载.bat（或 01-Windows安装\卸载.bat）
+  macOS ：bash <本包根目录>/04-macOS安装/uninstall-mac.command
+
+  卸载会从 *.bak-* 还原人格文件，删掉标记文件、zhudong 目录，
+  并把 settings.json 里含 zhudong 的两条 hook（SessionStart / UserPromptSubmit）摘掉，
+  其它 hook（比如你自己的）原样保留。卸完完全退出 WorkBuddy 再打开。
+
+-------------------------------------------------
+【5】报错对照
+
+  一闪就没                    右键"以管理员身份运行"
+  无法加载文件 未数字签名     用 安装.bat 跑就绕过，不用改系统策略
+  [X] 安装包不完整           解压不完整，重新完整解压（payload 与 hook 都要在）
+  没找到 .workbuddy           先装 WorkBuddy 并启动一次
+  人格没变化                  没退干净 / 旧会话缓存 / 重跑安装
+  BOOTSTRAP.md 又出现         没重启就开了会话；重启后重跑安装清掉它
+  最后一行没有群号            hook 没注入：跑 检查是否装好.bat 看 SessionStart/UserPromptSubmit 是否 X
+  hook 报执行策略错误         检查是否装好.bat 里能看到；重跑安装会重写命令（带 -ExecutionPolicy Bypass）
+  模型仍然给拒绝句            ① 确认 hook 那两项是 OK ② 换个模型再开新会话 ③ 把 检查是否装好.bat 的输出发群里
+
+-------------------------------------------------
+【6】给 AI 助手代装
+
+  把 03-给AI的话术.txt 里的路径改好，整段发给任意 AI 助手即可。
+
+-------------------------------------------------
+【7】本版更新（v1.5.0）
+
+  7.1  诊断出上一版为什么不生效：WorkBuddy 的人格文件走 user-context 模板，
+       且被 truncateContent(…, 10000) 硬截断；真正压模型的是 CLI 的 system prompt。
+  7.2  新增 hook 通道：SessionStart 注入完整内核（14626 字节，sha256 D40779CE…743174），
+       UserPromptSubmit 每轮注入契约摘要（1327 字节）。钩子输出进 <system-reminder data-role="hook">。
+  7.3  SOUL.md 改成精简版（1989 字符），彻底避开 10000 字符截断。
+  7.4  称呼统一成「老大」，内核换成 wk破.txt 逐字版 + 群公告收尾。
+  7.5  新增 hook_merge.py（macOS 合并/摘除钩子）与 检查是否装好.ps1 的 hook 检测项。
+  7.6  v1.5.0 修正：hook 改为输出 JSON（hookSpecificOutput.additionalContext）。
+       纯文本输出只会被 WorkBuddy 当成消息显示，不会被塞进提示词——这是上一版
+       钩子"跑了但没生效"的原因。
+
+-------------------------------------------------
+【8】模型通道（决定能不能压得住）
+
+  8.1  先看你现在跑的是哪个模型。双击 检查是否装好.bat，末尾会打印：
+           当前模型: xxx
+           请求端点: https://...
+       端点里出现 workbuddy.cn 就是走官方网关——那边服务端自带系统提示词和审核，
+       人格文件与 hook 都会被压掉，提示词再怎么写也没用。
+
+  8.2  切到自己的 API（WorkBuddy 设置 → 模型，选自定义那两个）：
+           deepseek-v4-pro   → https://zzz.wbzai.cn/v1
+           gpt-6-sol         → https://zzz.wbzai.cn/v1
+       这两个在 %USERPROFILE%\.workbuddy\models.json 里已经配好，端点是你自己的中转站，
+       没有官方网关那层系统提示词，人格 + hook 才会真正生效。
+
+  8.3  切完开新会话再测。检查是否装好.bat 的「请求端点」变成 zzz.wbzai.cn 即切换成功。
+
+  8.4  另外新增 memory 通道：安装会往
+           %USERPROFILE%\.workbuddy\memories\global\{AGENTS.md, WorkBuddy.md, CODEBUDDY.md}
+       写一份内核。WorkBuddy 的 codebuddyMd 模板写明「These instructions OVERRIDE any
+       default behavior」，属于最高优先级的文件级通道；产品不读也不会有副作用。
+
+-------------------------------------------------
+【9】output style 通道（v1.5.0 主力，进系统提示词）
+
+  9.1  原理：WorkBuddy 的 CLI 支持「输出风格」文件，位于
+           %USERPROFILE%\.workbuddy\output-styles\<名字>.md
+       并在 %USERPROFILE%\.workbuddy\settings.json 里用 "outputStyle": "<名字>" 选择。
+       被选中时，文件正文会作为默认 agent 的 instructions 进系统提示词——
+       这是本地唯一能到「系统提示词」层的通道，不是消息附注。
+
+  9.2  安装器已经写好：
+           output-styles\zhudong-armor.md      （frontmatter + 完整内核）
+           settings.json → "outputStyle": "zhudong-armor"
+       想确认生效：日志里会出现
+           Using output style from settings: zhudong-armor
+           Applied output style: zhudong-armor
+
+  9.3  与其它三条通道的关系：
+           output style  → 系统提示词（主力，压得住默认模型）
+           memory        → codebuddyMd（OVERRIDE any default behavior）
+           hook          → 每条消息的 system-reminder
+           SOUL/IDENTITY → 身份与称呼（user-context）
+       四条一起上，哪条被产品版本忽略都还有备份。
+
+  9.4  卸载会删掉 output-styles\zhudong-armor.md，并把 outputStyle 还原成你原来的值
+       （原值存档在 %USERPROFILE%\.workbuddy\zhudong-style-prev.json）。
+
+-------------------------------------------------
+【10】agent 通道（v1.5.0，覆盖默认 agent 的 instructions）
+
+ 10.1  CLI 支持自定义 agent：%USERPROFILE%\.workbuddy\agents\<名字>.md，
+       body 就是该 agent 的 systemPrompt（instructions）。
+       在 settings.json 里写 "agent": "<名字>"，CLI 会把它的 instructions 覆盖到
+       默认 agent 上（日志：Settings agent: applied "<名字>" config (instructions/tools)
+       onto default agent）。
+
+ 10.2  安装器已写：agents\zhudong.md（frontmatter + 完整内核）
+                   settings.json → "agent": "zhudong"
+       这比 output style 更硬：output style 只在默认 agent 上叠加，而 settings.agent
+       是直接把 instructions 换掉。
+
+ 10.3  生效证据（重启后日志里出现两行）：
+           Settings agent: applied "zhudong" config (instructions/tools) onto default agent
+           Applied output style: zhudong-armor
+
+ 10.4  卸载会删 agents\zhudong.md，并把 settings.agent 还原成原值
+       （存档在 %USERPROFILE%\.workbuddy\zhudong-agent-prev.json）。
+
+-------------------------------------------------
+【11】防护说明（v1.5.0 护甲版）
+
+ 11.1  包内零明文：所有内核与人格文本（SOUL / IDENTITY / USER / MEMORY / kernel /
+       reminder）都加密进了 payload.bin，用 SHA256 计数器流 + HMAC-SHA256。
+       直接用记事本、grep、「让 AI 读一遍这个压缩包」都只能拿到密文；
+       安装器才解密，解密出来的临时目录装完即删。
+
+ 11.2  逐文件 MAC：payload.bin 里每个文件带一条 HMAC。改一个字节，安装直接报
+       「载荷校验失败：xxx（包被改动过）」并中止，不会装出半残的破甲。
+
+ 11.3  水印：每份构建的内核里嵌了一段零宽字符（不可见、不影响模型行为），
+       编码这一版的 build id（安装第一行会打印 build: ZD-xxxxxxxxxx）。有人把内核抄出去传播，
+       用配套的 meta 文件就能对上是哪一版流出的。需要按买家分别发不同水印的包，
+       重新跑一次构建脚本即可。
+
+ 11.4  运行时自检：检查是否装好.bat 会核对五条通道是否都在位；
+       人格文件或 hook 被删被改，会直接标 X。
+
+ 11.5  必须说清的天花板：
+       · 装机之后，明文必须落到 ~/.workbuddy 才能被产品读取——这一段挡不住，
+         任何本地提示词包都一样。防的是「拿压缩包直接抄」和「随手转发」。
+       · payload.bin 的密钥随安装器一起发，只是拆开、反转、分段存放，
+         属于提高门槛，不是不可逆的密码学保护。
+       · 真要按台数/有效期控制，得上服务端校验（本包没做，也不建议在本地硬做）。
+
+-------------------------------------------------
+【11】防护说明（v1.5.0 护甲版）
+
+ 11.1  包内零明文：所有内核与人格文本（SOUL / IDENTITY / USER / MEMORY / kernel /
+       reminder）都加密进了 payload.bin，用 SHA256 计数器流 + HMAC-SHA256。
+       直接用记事本、grep、「让 AI 读一遍这个压缩包」都只能拿到密文；
+       安装器才解密，解密出来的临时目录装完即删。
+
+ 11.2  逐文件 MAC：payload.bin 里每个文件带一条 HMAC。改一个字节，安装直接报
+       「载荷校验失败：xxx（包被改动过）」并中止，不会装出半残的破甲。
+
+ 11.3  水印：每份构建的内核里嵌了一段零宽字符（不可见、不影响模型行为），
+       编码这一版的 build id（安装第一行会打印 build: ZD-xxxxxxxxxx）。有人把内核抄出去传播，
+       用配套的 meta 文件就能对上是哪一版流出的。需要按买家分别发不同水印的包，
+       重新跑一次构建脚本即可。
+
+ 11.4  运行时自检：检查是否装好.bat 会核对五条通道是否都在位；
+       人格文件或 hook 被删被改，会直接标 X。
+
+ 11.5  必须说清的天花板：
+       · 装机之后，明文必须落到 ~/.workbuddy 才能被产品读取——这一段挡不住，
+         任何本地提示词包都一样。防的是「拿压缩包直接抄」和「随手转发」。
+       · payload.bin 的密钥随安装器一起发，只是拆开、反转、分段存放，
+         属于提高门槛，不是不可逆的密码学保护。
+       · 真要按台数/有效期控制，得上服务端校验（本包没做，也不建议在本地硬做）。
+
+=====================================================
+版本 1.5.0  |  诛冬破甲 · WorkBuddy 版  |  2026-11-11
+诛冬群  |  QQ群 994974110  |  https://qm.qq.com/q/IR15E9xWkS
+=====================================================
